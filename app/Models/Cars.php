@@ -9,7 +9,7 @@ class Cars extends Model
 {
     use HasFactory;
 
-    protected  $fillable = [
+    protected $fillable = [
         'name',
         'image',
         'license_plate',
@@ -19,4 +19,9 @@ class Cars extends Model
         'is_available',
         'remarks',
     ];
+    // Relationship to bookings
+    public function bookings()
+    {
+        return $this->hasMany(\App\Models\Booking::class, 'car_id');
+    }
 }

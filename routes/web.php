@@ -10,6 +10,8 @@ use App\Http\Controllers\CarsController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
+
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -33,7 +35,12 @@ Auth::routes();
     Route::resource('/booking-approval', BookingApprovalController::class)->only('index')->middleware('role:admin');
     Route::post('/booking-approve/{id}', [BookingApprovalController::class, 'approve'])->middleware('role:admin');
     Route::post('/booking-reject/{id}', [BookingApprovalController::class, 'reject'])->middleware('role:admin');
-   
+    Route::put('/booking/{booking}', [BookingApprovalController::class, 'update'])
+     ->name('booking.update');
+    
+
+
+
     Route::resource('/my-rides-bookings', MyRidesController::class)->only('index', 'update')->middleware('role:driver');
     
     
@@ -42,7 +49,10 @@ Auth::routes();
 
     Route::get('/change-password', [ProfileController::class, 'showChangePasswordForm'])->name('password.change');
     Route::post('/change-password', [ProfileController::class, 'updatePassword'])->name('password.update');
-
+    Route::get('/available-drivers', [BookingController::class, 'availableDrivers']);
+    Route::get('/available-cars', [BookingController::class, 'availableCars']);
     Route::resource('/cars', CarsController::class);
+
+
 
 });
