@@ -69,6 +69,11 @@
                         <i class="fas fa-users"></i> User Management
                     </a>
                 </li>
+                    <li class=" nav-item dropdown {{ request()->routeIs('cars.*') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('cars.index') }}">
+                        <i class="fas fa-users"></i> Car Management
+                    </a>
+                </li>
                 @endrole
             </ul>
         </div>
