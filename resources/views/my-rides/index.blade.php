@@ -48,7 +48,7 @@
         let dataTable = $('#myTable').DataTable({
             "processing": true,
             "serverSide": true,
-            "ajax": '{{ route('my-rides-bookings.index') }}',
+            "ajax": '{{ route("my-rides-bookings.index") }}',
             "columns": [
                 { "data": "title", "name": "title", "render": renderWithDiv },
                 { "data": "date", "name": "date", "render": renderWithDiv },

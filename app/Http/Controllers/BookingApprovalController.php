@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Yajra\DataTables\Facades\DataTables;
+use Carbon\Carbon;
+
 
 class BookingApprovalController extends Controller
 {
@@ -26,36 +28,58 @@ class BookingApprovalController extends Controller
         return view('approval.index');
     }
 
-    public function approve($id)
-    {
-        $booking = Booking::where('status', 'pending')->findOrFail($id);
 
-        DB::beginTransaction();
-        try {
-            // Mark the user as inactive
-            $booking->update(['status' => 'approved']);
 
-            DB::commit();
+public function approve($id)
+{
+    $booking = Booking::where('status', 'pending')->findOrFail($id);
 
-            $driverEmail = optional($booking->driver)->email;
-
-            $requesterEmail = $booking->user->email;
-
-            $recipients = collect($driverEmail)
-                ->merge([$requesterEmail])
-                ->filter()
-                ->unique()
-                ->values()
-                ->all();
-
-            Mail::to($recipients)->send(new BookingAproveMail($booking));
-
-            return response(['data' => $booking, 'status' => 'success'], 200);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response(['message' => $e->getMessage(), 'status' => 'destroy failed'], 500);
-        }
+    // Conflict check
+    if (Booking::hasConflict(
+        $booking->driver_id, 
+        $booking->car_id, 
+        $booking->from_date, 
+        $booking->to_date, 
+        $booking->id)) {
+        return response()->json([
+            'status' => 'error', 
+            'message' => 'Driver or car already booked.'], 
+            422);
     }
+
+    DB::beginTransaction();
+    try {
+        $booking->update(['status' => 'approved']);
+        DB::commit();
+
+        // Emails
+        $recipients = collect([optional($booking->driver)->email])
+                        ->merge([$booking->user->email])
+                        ->filter()->unique()->values()->all();
+        Mail::to($recipients)->send(new BookingAproveMail($booking));
+
+        return response()->json([
+            'data' => $booking, 
+            'status' => 'success', 
+            'message' => 'Booking approved.'], 
+            200);
+
+    } catch (\Throwable $e) {
+        DB::rollBack();
+        return response()->json([
+            
+        'status' => 'error', 
+        'message' => 'Server error'],
+         500);
+    }
+}
+
+
+
+
+
+
+
 
     public function reject($id)
     {
@@ -127,24 +151,19 @@ class BookingApprovalController extends Controller
             return '<span class="' . $statusClass . '">' . ucfirst($row->status) . '</span>';
         })
         
-        ->addColumn('actions', function ($row) {
-            $viewButton = '<button data-id="' . $row->id . '" class="btn w-100 btn-outline-primary btn-sm ms-1 view-button">View</button>';
-            $editButton = '';
-            $cancelButton = '';
-        
-            if ($row->status === 'pending' || $row->status === 'approved') {
-                $editButton = '<button data-id="' . $row->id . '" class="btn btn-outline-warning btn-sm ms-1 edit-button">Edit</button>';
-                $cancelButton = '<button data-id="' . $row->id . '" class="btn btn-outline-danger btn-sm ms-1 cancel-button">Cancel</button>';
-            }
-        
-            return '
-                <div class="d-flex">
-                    ' . $viewButton . '
-                    ' . $editButton . '
-                    ' . $cancelButton .'
-                </div>
-            ';
-        })        
+   // Make sure your actions column only has view/edit/cancel if needed
+->addColumn('actions', function ($row) {
+    $viewButton = '<button data-id="' . $row->id . '" class="btn w-100 btn-outline-primary btn-sm ms-1 view-button">View</button>';
+    $editButton = '';
+    $cancelButton = '';
+
+    if ($row->status === 'pending' || $row->status === 'approved') {
+        $editButton = '<button data-id="' . $row->id . '" class="btn btn-outline-warning btn-sm ms-1 edit-button">Edit</button>';
+        $cancelButton = '<button data-id="' . $row->id . '" class="btn btn-outline-danger btn-sm ms-1 cancel-button">Cancel</button>';
+    }
+
+    return '<div class="d-flex">' . $viewButton . $editButton . $cancelButton . '</div>';
+})
         ->rawColumns(['status', 'date', 'actions'])
         ->make(true);
     }

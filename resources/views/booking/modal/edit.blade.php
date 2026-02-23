@@ -9,6 +9,8 @@
             <form id="myForm">
                 @csrf
                 <div class="modal-body">
+                          <!-- Conflict warning will be injected here by JS -->
+        <div id="conflict-warning" class="alert alert-warning d-none"></div>
                     <div class="mb-3">
                         <label for="title" class="form-label">Description/Title</label>
                         <input type="text" name="title" class="form-control form-control-sm" id="title" required>

@@ -37,18 +37,19 @@
         var renderWithDiv = function(data, type, full, meta) {
             return '<div>' + data + '</div>';
         };
-        let dataTable = $('#myTable').DataTable({
-            "processing": true,
-            "serverSide": true,
-            "ajax": '{{ route('booking-history.index') }}',
-            "columns": [
-                { "data": "title", "name": "title", "render": renderWithDiv },
-                { "data": "date", "name": "date", "render": renderWithDiv },
-                { "data": "status", "name": "date", "render": renderWithDiv },
-                { "data": "destination", "name": "destination", "render": renderWithDiv },
-                { "data": "actions", "name": "actions", "orderable": false, "searchable": false }
-            ]
-        });
+    let dataTable = $('#myTable').DataTable({
+    processing: true,
+    serverSide: true,
+    ajax: '{{ route("booking-history.index") }}',
+    columns: [
+        { data: "title", name: "title", render: renderWithDiv },
+        { data: "date", name: "date", render: renderWithDiv },
+        { data: "status", name: "status", render: renderWithDiv }, // fixed
+        { data: "destination", name: "destination", render: renderWithDiv },
+        { data: "actions", name: "actions", orderable: false, searchable: false }
+    ]
+});
+
 
         const myViewModal = $('#viewModal');
         const myEditModal = $('#bookingModal');
@@ -115,65 +116,61 @@
                 });
             })
         })
+// Update
+$('#update-button').click(e => {
+    e.preventDefault();
 
-        // Update
-        $('#update-button').click(e => {
-            e.preventDefault();
+    $('.text-danger').addClass('d-none');
+    $('.form-control').removeClass('is-invalid');
+    $('.form-select').removeClass('is-invalid');
 
+    const payload = {
+        title: $('#title').val(),
+        purpose: $('#purpose').val(),
+        from_date: $('#from_date').val(),
+        to_date: $('#to_date').val(),
+        destination: $('#destination').val(),
+        driver_id: $('#driver_id').val(),
+        car_id: $('#car_id').val(),
+        remarks: $('#remarks').val()
+    };
+
+    axios.put(`/booking-history/${id}`, payload, {
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+    .then((response) => {
+        dataTable.ajax.reload();
+        myEditModal.modal('hide');
+        Swal.fire({
+            title: "Success!",
+            text: "Your changes have been saved.",
+            icon: "success"
+        });
+    })
+    .catch(error => {
+        if(error.response && error.response.status === 422) {
             $('.text-danger').addClass('d-none');
             $('.form-control').removeClass('is-invalid');
             $('.form-select').removeClass('is-invalid');
 
-            const formData = new FormData();
-            formData.append('title', $('#title').val());
-            formData.append('purpose', $('#purpose').val());
-            formData.append('from_date', $('#from_date').val());
-            formData.append('to_date', $('#to_date').val());
-            formData.append('destination', $('#destination').val());
-            formData.append('driver_id', $('#driver_id').val());
-            formData.append('car_id', $('#car_id').val());
-            formData.append('remarks', $('#remarks').val());
-            formData.append('_method', 'PUT');
-
-            axios.post(`booking-history/${id}`, formData, {
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'multipart/form-data'
-                }
-            })
-            .then((response) => {
-                dataTable.ajax.reload();
-                myEditModal.modal('hide');
-                Swal.fire({
-                    title: "Success!",
-                    text: "Your changes have been saved.",
-                    icon: "success"
-                });
-            })
-            .catch(error => {
-                if(error.response && error.response.status === 422) {
-                    // Clear previous error messages
-                    $('.text-danger').addClass('d-none');
-                    $('.form-control').removeClass('is-invalid');
-                    $('.form-select').removeClass('is-invalid');
-
-                    $.each(error.response.data.errors, function(field, errorMessage) {
-                        var errorSpanId = '#' + field + '_error';
-                        $(`#${field}`).addClass('is-invalid');
-
-                        // Show the error message in the respective error span
-                        $(errorSpanId).removeClass('d-none').text(errorMessage[0]);
-                    });
-
-                } else {
-                    Swal.fire({
-                        title: "Oops!",
-                        text: error.message,
-                        icon: "error"
-                    });
-                }
+            $.each(error.response.data.errors, function(field, errorMessage) {
+                var errorSpanId = '#' + field + '_error';
+                $(`#${field}`).addClass('is-invalid');
+                $(errorSpanId).removeClass('d-none').text(errorMessage[0]);
             });
-        });
+
+        } else {
+            Swal.fire({
+                title: "Oops!",
+                text: error.response?.data?.message || error.message,
+                icon: "error"
+            });
+        }
+    });
+});
+
 
          // Cancel
          $(document).on('click', '.cancel-button', function() {

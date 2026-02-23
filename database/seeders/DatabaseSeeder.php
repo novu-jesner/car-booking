@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
 
 
         User::factory()->create([
-            'name' => 'Driver',
+            'name' => 'Driver 1',
             'employee_no' => '3002',
             'email' => 'driver@novulutions.com',
             'password' => Hash::make('N0vulut10ns@'),
@@ -45,9 +45,16 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('N0vulut10ns@'),
         ])->assignRole('driver');
 
+            User::factory()->create([
+            'name' => 'Driver 4',
+            'employee_no' => '3005',
+            'email' => 'driver4@novulutions.com',
+            'password' => Hash::make('N0vulut10ns@'),
+        ])->assignRole('driver');
+
 
         Cars::factory()->create([
-            'name'  => 'Toyota Hiace',
+            'name'  => 'Toyota Hiace 1',
             'image' => 'Toyota Hiace',
             'license_plate' => '1234HA',
             'seater' => 14,
@@ -58,7 +65,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Cars::factory()->create([
-    'name' => 'Toyota Lancer',
+    'name' => 'Toyota Lancer 2',
     'image' => 'Toyota Lancer',
     'license_plate' => 'Lancer-001',
     'seater' => 16,
@@ -68,12 +75,22 @@ class DatabaseSeeder extends Seeder
 ]);
 
 Cars::factory()->create([
-    'name' => 'Nissan Urvan',
+    'name' => 'Nissan Urvan 3',
     'image' => 'Nissan Urvan',
     'license_plate' => 'URVAN-002',
     'seater' => 15,
     'brand' => 'Nissan',
     'type' => 'Van',
+    'is_available' => true,
+]);
+
+Cars::factory()->create([
+    'name' => 'Honda Click 4',
+    'image' => 'Honda Click',
+    'license_plate' => 'CLICK-004',
+    'seater' => 2,
+    'brand' => 'Honda',
+    'type' => 'Motor',
     'is_available' => true,
 ]);
 

@@ -160,7 +160,7 @@
                 myModal.modal('hide');
                 Swal.fire({
                     title: "Success!",
-                    text: "Your data has been saved.",
+                    text: response.data.message,
                     icon: "success"
                 });
             })
@@ -190,52 +190,9 @@
     });
 
 
-    function updateAvailability() {
-        let from = $('#from_date').val();
-        let to   = $('#to_date').val();
-        if (!from || !to) return;
 
-      
-        fetch(`/available-drivers?from_date=${from}&to_date=${to}`)
-            .then(res => res.json())
-            .then(data => {
-                let driverSelect = $('#driver_id');
-                driverSelect.html('<option value="">Select Driver</option>');
-                data.forEach(driver => {
-                    driverSelect.append(`<option value="${driver.id}" ${!driver.available ? 'disabled' : ''}>
-                        ${driver.name} ${!driver.available ? '(Unavailable)' : ''}
-                    </option>`);
-                });
-            });
 
-       
-        fetch(`/available-cars?from_date=${from}&to_date=${to}`)
-            .then(res => res.json())
-            .then(data => {
-                let carSelect = $('#car_id');
-                carSelect.html('<option value="">Select Car</option>');
-                data.cars_with_availability.forEach(car => {
-                    carSelect.append(`<option value="${car.id}" ${!car.available ? 'disabled' : ''}>
-                        ${car.name} (${car.license_plate || ''}) - ${car.brand || ''} - ${car.seater || ''} seats - 
-                        ${car.available ? 'Available' : 'Unavailable'}
-                    </option>`);
-                });
-            });
-    }
-
-    $('#from_date, #to_date').on('change', updateAvailability);
-    fetch(`/available-cars?from_date=${from}&to_date=${to}`)
-  .then(res => res.json())
-  .then(data => {
-      let carSelect = $('#car_id');
-      carSelect.html('<option value="">Select Car</option>');
-      data.cars_with_availability.forEach(car => {
-          carSelect.append(`<option value="${car.id}" ${!car.available ? 'disabled' : ''}>
-              ${car.name} (${car.license_plate || ''}) - ${car.brand || ''} - ${car.seater || ''} seats - 
-              ${car.available ? 'Available' : 'Unavailable'}
-          </option>`);
-      });
-  });
+ 
 
 </script>
 

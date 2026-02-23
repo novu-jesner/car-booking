@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateBookingRequest;
+use App\Http\Requests\UpdateBookingRequest;
 use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -40,40 +40,75 @@ class HistoryController extends Controller
         return response(['data' => $booking, 'status' => 'success'], 200);
     }
 
-    public function update(CreateBookingRequest $request, $id)
-    {
-        DB::beginTransaction();
-        try {
-            $data = $request->validated();
-            $booking = Booking::where('status', 'pending')->orWhere('status', 'approved')->findOrFail($id);
-        
-            // Ensure is_approved is properly cast as a boolean
-            $isApproved = filter_var($data['is_approved'] ?? false, FILTER_VALIDATE_BOOLEAN);
-        
-            // Keep existing dates if approved, otherwise use input values
-            $from = $isApproved ? $booking->from_date : ($data['from_date'] ?? $booking->from_date);
-            $to = $isApproved ? $booking->to_date : ($data['to_date'] ?? $booking->to_date);
-        
-            $booking->update([
-                'title' => $data['title'],
-                'purpose' => $data['purpose'],
-                'from_date' => $from,
-                'to_date' => $to,
-                'destination' => $data['destination'],
-                'driver_id' => $data['driver_id'],
-                'car_id' => $data['car_id'],
-                'remarks' => $data['remarks'],
-            ]);
-        
-            DB::commit();
-            
-            // Return success response
-            return response(['data' => $booking, 'status' => 'success'], 200);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response(['message' => $e->getMessage(), 'status' => 'store failed'], 500);
-        }        
+
+
+
+
+    
+
+public function update(UpdateBookingRequest $request, $id)
+{
+    $data = $request->validated();
+    $booking = Booking::findOrFail($id);
+
+    if ($booking->status === 'approved') {
+    return response()->json([
+        'status' => 'error',
+        'message' => 'Approved bookings cannot be edited.'
+    ], 403);
+}
+
+    if (isset($data['is_approved'])) {
+        $data['is_approved'] = filter_var($data['is_approved'], FILTER_VALIDATE_BOOLEAN);
     }
+
+    // 🔥 Conflict check FIRST
+   if (Booking::hasConflict(
+        $data['driver_id'],
+        $data['car_id'],
+        $data['from_date'],
+        $data['to_date'],
+        $booking->id
+    )) {
+      
+        return response()->json([
+            'status' => 'error',
+            'title'  => 'Oops!',
+            'message' => 'palit Driver or Car and Dates. May nauna na yah.',
+            'buttonText' => 'Got it'
+        ], 422);
+    }
+   
+    DB::beginTransaction();
+    try {
+        $booking->update($data);
+        DB::commit();
+
+        return response()->json([
+            'status' => 'success',
+            'title' => 'Success!',
+            'message' => 'Nag Update yah.',
+            'buttonText' => 'Okay',
+            'data' => $booking
+        ], 200);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'status' => 'error',
+            'title' => 'Error!',
+            'message' => $e->getMessage(),
+            'buttonText' => 'Close'
+        ], 500);
+    }
+}
+
+
+
+
+
+
+
 
     public function destroy(string $id)
     {

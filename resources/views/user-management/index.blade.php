@@ -39,7 +39,7 @@
         let dataTable = $('#myTable').DataTable({
             "processing": true,
             "serverSide": true,
-            "ajax": '{{ route('user-management.index') }}',
+            "ajax": "{{ route('user-management.index') }}",
             "columns": [
                 { "data": "profile_picture", "name": "profile_picture", "render": renderWithDiv },
                 { "data": "employee_no", "name": "employee_no", "render": renderWithDiv },
