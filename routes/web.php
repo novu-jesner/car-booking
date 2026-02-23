@@ -7,8 +7,10 @@ use App\Http\Controllers\MyRidesController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CarsController;
+use App\Http\Controllers\DriverReportController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminReportController;
 
 
 
@@ -53,6 +55,9 @@ Auth::routes();
     Route::get('/available-cars', [BookingController::class, 'availableCars']);
     Route::resource('/cars', CarsController::class);
 
-
-
+    
+    Route::get('/driver/dashboard', [DriverReportController::class, 'index'])->name('driver.dashboard');
+    Route::post('/driver/report', [DriverReportController::class, 'store'])->name('driver.report.store'); 
+    Route::get('/admin/reports', [AdminReportController::class, 'index'])->name('admin.reports.index')->middleware('role:admin');
 });
+
