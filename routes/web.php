@@ -57,7 +57,7 @@ Auth::routes();
 
     
     Route::get('/driver/dashboard', [DriverReportController::class, 'index'])->name('driver.dashboard');
-    Route::post('/driver/report', [DriverReportController::class, 'submit'])->name('driver.report.submit'); 
+    Route::post('/driver/report', [DriverReportController::class, 'store'])->name('driver.report.store'); 
     Route::get('/admin/reports', [AdminReportController::class, 'index'])->name('admin.reports.index')->middleware('role:admin');
 });
 

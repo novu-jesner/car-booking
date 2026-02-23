@@ -29,7 +29,19 @@ class DriverReportController extends Controller
      */
     public function submit(Request $request)
     {
-      $booking = Booking::where('driver_id', Auth::id())
+    
+    }
+    public function create()
+    {
+        
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+              $booking = Booking::where('driver_id', Auth::id())
                 ->where('status', 'approved')
                 ->latest()
                 ->first();
@@ -44,20 +56,8 @@ class DriverReportController extends Controller
         'type' => $request->type,
         'description' => $request->description
     ]);
-
-    return back()->with('success','Report submitted!');
-    }
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
+      return back()->with('success','Report submitted!');
+    
     }
 
     /**

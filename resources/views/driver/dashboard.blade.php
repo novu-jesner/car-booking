@@ -40,7 +40,7 @@
     
         <h3>Submit Report</h3>
 
-        <form method="POST" action="{{ route('driver.report.submit') }}">
+        <form method="POST" action="{{ route('driver.report.store') }}">
             @csrf
             <div class="mb-3">
                 <label>Report Type</label>
