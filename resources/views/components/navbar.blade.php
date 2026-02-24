@@ -46,6 +46,13 @@
                     </a>
                 </li>
                 @endrole
+                 @role('driver')
+                <li class=" nav-item dropdown {{ request()->routeIs('driver.dashboard') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('driver.dashboard') }}">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                @endrole
                 <li class=" nav-item dropdown {{ request()->routeIs('booking.*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('booking.index') }}">
                         <i class="fas fa-calendar-alt"></i> Booking
@@ -72,6 +79,12 @@
                     <li class=" nav-item dropdown {{ request()->routeIs('cars.*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('cars.index') }}">
                         <i class="fas fa-users"></i> Car Management
+                    </a>
+                </li>
+                                </li>
+                    <li class=" nav-item dropdown {{ request()->routeIs('admin.reports.index') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('admin.reports.index') }}">
+                        <i class="fas fa-users"></i> Reports
                     </a>
                 </li>
                 @endrole
