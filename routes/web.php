@@ -39,7 +39,6 @@ Auth::routes();
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/change-password', [ProfileController::class, 'showChangePasswordForm'])->name('password.change');
     Route::post('/change-password', [ProfileController::class, 'updatePassword'])->name('password.update');
-
     Route::resource('/cars', CarsController::class);
 
 
